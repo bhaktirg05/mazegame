@@ -69,8 +69,7 @@ function neighborSideVisited(indexNeigh, arr) {
     return false;
 }
 
-const findPath = function () {
-    const storage = [];
+function firstStartPoint(storage) {
     const index = Math.floor(Math.random() * 3);
     console.log(start[index].row, start[index].col);
     arr[start[index].row][start[index].col] = 1;
@@ -84,68 +83,103 @@ const findPath = function () {
         start[index].col,
     );
     storage.push({ row: start[index].row, col: start[index].col });
+}
 
+function backtrack(filtered, storage, row, col, neigh) {
+    while (filtered.length === 0 && storage.length !== 0) {
+        console.log("Filter empty");
+        arr[storage.at(-1).row][storage.at(-1).col] = 2;
+        storage.pop();
+
+        if (storage.length !== 0) {
+            row = storage.at(-1).row;
+            col = storage.at(-1).col;
+
+            neigh = getNeighbors(row, col, arr);
+            filtered = filterNeighbor(neigh, arr);
+        }
+    }
+    return filtered;
+}
+
+const isToDeclareDeath = function (indexNeigh, arr, filtered, neighindex) {
+    if (isDeathEnd(indexNeigh, arr)) {
+        arr[filtered[neighindex].row][filtered[neighindex].col] = 2;
+        console.log("Death End", filtered[neighindex]);
+        return true;
+    }
+    return false;
+};
+
+const isToDeclareNeighborVisited = function (
+    indexNeigh,
+    arr,
+    filtered,
+    neighindex,
+) {
+    if (neighborSideVisited(indexNeigh, arr)) {
+        arr[filtered[neighindex].row][filtered[neighindex].col] = 2;
+        return true;
+    }
+    return false;
+};
+
+const findPath = function () {
+    const storage = [];
+    firstStartPoint(storage);
     console.log("Storage1: ", storage);
     let i = 0;
     while (storage.length !== 0 && storage.at(-1).col !== arr[0].length - 1) {
-        // for (
-        //     let i = 0;
-        //     i < 20 &&
-        //     storage.length !== 0 &&
-        //     storage.at(-1).col !== arr[0].length - 1;
-        //     i++
-        // ) {
         console.log("Iteration", i, "\n", arr);
         console.log("Stop:", stop);
+
         i++;
+
         let { row, col } = storage.at(-1);
-        console.log("Last element in storage :", storage.at(-1));
         let neigh = getNeighbors(row, col, arr);
         let filtered = filterNeighbor(neigh, arr);
+
+        console.log("Last element in storage :", storage.at(-1));
         console.log("Neighbors :", neigh, "Filtered", filtered);
 
-        while (filtered.length === 0 && storage.length !== 0) {
-            console.log("Filter empty");
-            arr[storage.at(-1).row][storage.at(-1).col] = 2;
-            storage.pop();
+        filtered = backtrack(filtered, storage, row, col, neigh);
 
-            if (storage.length !== 0) {
-                row = storage.at(-1).row;
-                col = storage.at(-1).col;
-
-                neigh = getNeighbors(row, col, arr);
-                filtered = filterNeighbor(neigh, arr);
-            }
-        }
         if (storage.length === 0 || filtered.length === 0) {
             stop = true;
             console.log("Break");
             break;
         }
+
         const neighindex = Math.floor(Math.random() * filtered.length);
-        console.log(
-            "index : ",
-            neighindex,
-            " Selected : ",
-            filtered[neighindex],
-        );
         const indexNeigh = getNeighbors(
             filtered[neighindex].row,
             filtered[neighindex].col,
             arr,
         );
 
+        console.log(
+            "index : ",
+            neighindex,
+            " Selected : ",
+            filtered[neighindex],
+        );
         console.log("index neighbors :", indexNeigh);
 
-        if (isDeathEnd(indexNeigh, arr)) {
-            arr[filtered[neighindex].row][filtered[neighindex].col] = 2;
-            console.log("Death End", filtered[neighindex]);
+        // if (isDeathEnd(indexNeigh, arr)) {
+        //     arr[filtered[neighindex].row][filtered[neighindex].col] = 2;
+        //     console.log("Death End", filtered[neighindex]);
+        //     continue;
+        // }
+
+        if (isToDeclareDeath(indexNeigh, arr, filtered, neighindex)) continue;
+
+        // if (neighborSideVisited(indexNeigh, arr)) {
+        //     arr[filtered[neighindex].row][filtered[neighindex].col] = 2;
+        //     continue;
+        // }
+
+        if (isToDeclareNeighborVisited(indexNeigh, arr, filtered, neighindex))
             continue;
-        }
-        if (neighborSideVisited(indexNeigh, arr)) {
-            arr[filtered[neighindex].row][filtered[neighindex].col] = 2;
-            continue;
-        }
 
         arr[filtered[neighindex].row][filtered[neighindex].col] = 1;
         storage.push(filtered[neighindex]);
