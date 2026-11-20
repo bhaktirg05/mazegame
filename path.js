@@ -54,17 +54,17 @@ const isDeathEnd = function (neighbors, arr) {
     for (const index of neighbors) {
         if (arr[index.row][index.col] === 0) count++;
     }
-    if (count >= 1) return false;
+    if (count > 0) return false;
     return true;
 };
 
-const neighborSideVisited = function (indexNeigh, arr) {
+const isNeighborVisited = function (indexNeigh, arr) {
+    console.log("Yes Called");
     let count = 0;
     for (const index of indexNeigh) {
         if (arr[index.row][index.col] === 1) count++;
     }
-    if (count >= 2) return true;
-    return false;
+    return count >= 2;
 };
 
 const dbg = function (value, name = "") {
@@ -112,29 +112,6 @@ const backtrack = function (filtered, storage, row, col, neigh, map) {
     return filtered;
 };
 
-const isToDeclareDeath = function (indexNeigh, map, filtered, neighindex) {
-    if (isDeathEnd(indexNeigh, map)) {
-        const { row, col } = filtered[neighindex];
-        map[row][col] = 2;
-        return true;
-    }
-    return false;
-};
-
-const isToDeclareNeighborVisited = function (
-    indexNeigh,
-    arr,
-    filtered,
-    neighindex,
-) {
-    const { row, col } = filtered[neighindex];
-    if (neighborSideVisited(indexNeigh, arr)) {
-        arr[row][col] = 2;
-        return true;
-    }
-    return false;
-};
-
 const getFilteredNeightbours = function (row, col, map) {
     const neighbors = getNeighbors(row, col, map);
     return filterNeighbor(neighbors, map);
@@ -170,21 +147,20 @@ const generatePath = function (map) {
             map,
         );
 
-        if (
-            isToDeclareDeath(indexNeigh, map, neightbours, neighindex) ||
-            isToDeclareNeighborVisited(indexNeigh, map, neightbours, neighindex)
-        )
+        if (isDeathEnd(indexNeigh, map) || isNeighborVisited(indexNeigh, map)) {
+            map[randomNeighbour.row][randomNeighbour.col] = 2;
             continue;
+        }
 
         map[randomNeighbour.row][randomNeighbour.col] = 1;
         storage.push(randomNeighbour);
     }
+    console.table(map);
+    console.log(storage);
     return storage;
 };
 
 // console.log(generatePath(map));
-
-// console.table(map);
 
 module.exports = {
     generatePath,
