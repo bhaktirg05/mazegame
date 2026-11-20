@@ -1,5 +1,5 @@
-const ROWS = 20;
-const COLS = 20;
+// const ROWS = 20;
+// const COLS = 20;
 
 const generateMap = function (rows, cols) {
     const map = [];
@@ -17,22 +17,7 @@ const random = function (st, end) {
     return st + Math.floor(Math.random() * (end + 1 - st));
 };
 
-const map = generateMap(ROWS, COLS);
-
-const start = [
-    {
-        row: 0,
-        col: random(0, 3),
-    },
-    {
-        row: ROWS - 1,
-        col: random(0, 3),
-    },
-    {
-        row: random(0, 3),
-        col: 0,
-    },
-];
+// const map = generateMap(ROWS, COLS);
 
 let stop = false;
 
@@ -87,7 +72,21 @@ const dbg = function (value, name = "") {
     return value;
 };
 
-const firstStartPoint = function (storage) {
+const firstStartPoint = function (storage, map, ROWS) {
+    const start = [
+        {
+            row: 0,
+            col: random(0, 3),
+        },
+        {
+            row: ROWS - 1,
+            col: random(0, 3),
+        },
+        {
+            row: random(0, 3),
+            col: 0,
+        },
+    ];
     const index = random(0, 2);
     const { row, col } = start[index];
 
@@ -95,7 +94,7 @@ const firstStartPoint = function (storage) {
     storage.push({ row, col });
 };
 
-const backtrack = function (filtered, storage, row, col, neigh) {
+const backtrack = function (filtered, storage, row, col, neigh, map) {
     while (filtered.length === 0) {
         console.log("Filter empty");
         map[storage.at(-1).row][storage.at(-1).col] = 2;
@@ -117,7 +116,6 @@ const isToDeclareDeath = function (indexNeigh, map, filtered, neighindex) {
     if (isDeathEnd(indexNeigh, map)) {
         const { row, col } = filtered[neighindex];
         map[row][col] = 2;
-        console.log("Death End", filtered[neighindex]);
         return true;
     }
     return false;
@@ -149,7 +147,9 @@ const randomFromData = function (data) {
 
 const generatePath = function (map) {
     const storage = [];
-    firstStartPoint(storage);
+    const ROWS = map.length;
+    const COLS = map.at(0).length;
+    firstStartPoint(storage, map, ROWS);
 
     while (storage.length !== 0 && storage.at(-1).col !== COLS - 1) {
         let { row, col } = storage.at(-1);
@@ -158,7 +158,7 @@ const generatePath = function (map) {
         let neightbours = filterNeighbor(neigh, map);
 
         if (neightbours.length === 0) {
-            neightbours = backtrack(neightbours, storage, row, col, neigh);
+            neightbours = backtrack(neightbours, storage, row, col, neigh, map);
         }
 
         const neighindex = random(0, neightbours.length - 1);
@@ -179,11 +179,14 @@ const generatePath = function (map) {
         map[randomNeighbour.row][randomNeighbour.col] = 1;
         storage.push(randomNeighbour);
     }
-    console.log("Array", map);
-    console.log("Storage", storage);
     return storage;
 };
 
-console.log(generatePath(map));
+// console.log(generatePath(map));
 
-console.table(map);
+// console.table(map);
+
+module.exports = {
+    generatePath,
+    generateMap,
+};
