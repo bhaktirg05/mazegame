@@ -1,5 +1,6 @@
 const r = require("raylib");
 const p = require("./path");
+const m = require("./math");
 
 const running = function () {
     return !r.WindowShouldClose();
@@ -17,19 +18,31 @@ const createWorld = function () {
     };
 };
 
-const chooseColor = function (path, i, j) {
-    for (const { row, col } of path) {
-        if (row === i && col === j) return r.WHITE;
-    }
-    return r.BLACK;
+const setup = function () {
+    const world = createWorld();
+    world.map.grid = p.generateMap(world.map.ROWS, world.map.COLS);
+    world.map.size = Math.ceil(world.screen.WIDTH / world.map.ROWS);
+    world.map.maze = p.generateMaze(world.map.grid);
+
+    r.SetTraceLogLevel(r.LOG_NONE);
+    r.InitWindow(world.screen.WIDTH, world.screen.HEIGHT, world.screen.TITLE);
+    r.SetTargetFPS(world.screen.FPS);
+
+    return world;
+};
+const randomColor = function () {
+    const colors = [r.WHITE, r.BLACK];
+    const num = m.random(0, colors.length - 1);
+    return colors[num];
+};
+const chooseColor = function (maze, i, j) {
+    return maze[i][j] === 1 ? r.WHITE : randomColor();
 };
 
 function getObject(row, col, map) {
     const x = col * map.size;
     const y = row * map.size;
-    const color = chooseColor(map.path, row, col);
-    // const color = map.path[row][col] === 1 ? r.WHITE : r.BLACK;
-    // console.log(map.path[row][col], "color", color);
+    const color = chooseColor(map.maze, row, col);
     const size = map.size;
     return { x, y, size, size, color };
 }
@@ -43,19 +56,6 @@ function drawMaze(map) {
         }
     }
 }
-
-const setup = function () {
-    const world = createWorld();
-    world.map.grid = p.generateMap(world.map.ROWS, world.map.COLS);
-    world.map.size = Math.ceil(world.screen.WIDTH / world.map.ROWS);
-    world.map.path = p.generatePath(world.map.grid);
-
-    r.SetTraceLogLevel(r.LOG_NONE);
-    r.InitWindow(world.screen.WIDTH, world.screen.HEIGHT, world.screen.TITLE);
-    r.SetTargetFPS(world.screen.FPS);
-
-    return world;
-};
 
 const update = function (world) {};
 

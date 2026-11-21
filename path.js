@@ -1,6 +1,8 @@
 // const ROWS = 20;
 // const COLS = 20;
 
+const m = require("./math");
+
 const generateMap = function (rows, cols) {
     const map = [];
     for (let y = 0; y < rows; y++) {
@@ -13,14 +15,7 @@ const generateMap = function (rows, cols) {
     return map;
 };
 
-const random = function (st, end) {
-    return st + Math.floor(Math.random() * (end + 1 - st));
-};
-
 // const map = generateMap(ROWS, COLS);
-
-let stop = false;
-
 const getNeighbors = function (i, j, arr) {
     const neighborPoints = [];
     const rowStart = Math.max(0, i - 1);
@@ -39,14 +34,13 @@ const getNeighbors = function (i, j, arr) {
 };
 
 const filterNeighbor = function (neighbors, arr) {
-    const neigh = neighbors.slice();
-    for (let key = 0; key < neigh.length; key++) {
-        if (arr[neigh[key].row][neigh[key].col] !== 0) {
-            neigh.splice(key, 1);
-            key--;
-        }
+    const filteredNeighbors = [];
+    for (let key = 0; key < neighbors.length; key++) {
+        const { row, col } = neighbors[key];
+
+        if (arr[row][col] === 0) filteredNeighbors.push(neighbors[key]);
     }
-    return neigh;
+    return filteredNeighbors;
 };
 
 const isDeathEnd = function (neighbors, arr) {
@@ -76,18 +70,18 @@ const firstStartPoint = function (storage, map, ROWS) {
     const start = [
         {
             row: 0,
-            col: random(0, 3),
+            col: m.random(0, 3),
         },
         {
             row: ROWS - 1,
-            col: random(0, 3),
+            col: m.random(0, 3),
         },
         {
-            row: random(0, 3),
+            row: m.random(0, 3),
             col: 0,
         },
     ];
-    const index = random(0, 2);
+    const index = m.random(0, 2);
     const { row, col } = start[index];
 
     map[row][col] = 1;
@@ -100,14 +94,12 @@ const backtrack = function (filtered, storage, row, col, neigh, map) {
         map[storage.at(-1).row][storage.at(-1).col] = 2;
         storage.pop();
 
-        if (storage.length !== 0) {
-            // ({row, col}) = storage.at(-1)
-            row = storage.at(-1).row;
-            col = storage.at(-1).col;
+        // ({row, col}) = storage.at(-1)
+        row = storage.at(-1).row;
+        col = storage.at(-1).col;
 
-            neigh = getNeighbors(row, col, map);
-            filtered = filterNeighbor(neigh, map);
-        }
+        neigh = getNeighbors(row, col, map);
+        filtered = filterNeighbor(neigh, map);
     }
     return filtered;
 };
@@ -118,11 +110,11 @@ const getFilteredNeightbours = function (row, col, map) {
 };
 
 const randomFromData = function (data) {
-    const i = random(0, data.length - 1);
+    const i = m.random(0, data.length - 1);
     return data[i];
 };
 
-const generatePath = function (map) {
+const generateMaze = function (map) {
     const storage = [];
     const ROWS = map.length;
     const COLS = map.at(0).length;
@@ -138,7 +130,7 @@ const generatePath = function (map) {
             neightbours = backtrack(neightbours, storage, row, col, neigh, map);
         }
 
-        const neighindex = random(0, neightbours.length - 1);
+        const neighindex = m.random(0, neightbours.length - 1);
         const randomNeighbour = randomFromData(neightbours);
 
         const indexNeigh = getNeighbors(
@@ -148,7 +140,7 @@ const generatePath = function (map) {
         );
 
         if (isDeathEnd(indexNeigh, map) || isNeighborVisited(indexNeigh, map)) {
-            map[randomNeighbour.row][randomNeighbour.col] = 2;
+            map[randomNeighbour.row][randomNeighbour.col] = 1;
             continue;
         }
 
@@ -157,12 +149,12 @@ const generatePath = function (map) {
     }
     console.table(map);
     console.log(storage);
-    return storage;
+    return map;
 };
 
 // console.log(generatePath(map));
 
 module.exports = {
-    generatePath,
+    generateMaze,
     generateMap,
 };
