@@ -52,7 +52,6 @@ const isDeathEnd = function (neighbors, arr) {
 };
 
 const isNeighborVisited = function (neighbours, arr) {
-    console.log("Yes Called");
     let count = 0;
     for (const { y, x } of neighbours) {
         if (arr[y][x] === 1) count++;
@@ -66,23 +65,24 @@ const dbg = function (value, name = "") {
 };
 
 const firstStartPoint = function (storage, map, ROWS) {
-    const start = [
-        {
-            y: 0,
-            x: m.random(0, 3),
-        },
-        {
-            y: ROWS - 1,
-            x: m.random(0, 3),
-        },
-        {
-            y: m.random(0, 3),
-            x: 0,
-        },
-    ];
-    const index = m.random(0, 2);
-    const { y, x } = start[index];
-
+    // const start = [
+    //     {
+    //         y: 0,
+    //         x: m.random(0, 3),
+    //     },
+    //     {
+    //         y: ROWS - 1,
+    //         x: m.random(0, 3),
+    //     },
+    //     {
+    //         y: m.random(0, 3),
+    //         x: 0,
+    //     },
+    // ];
+    // const index = m.random(0, 2);
+    // const { y, x } = start[index];
+    const y = m.random(0, ROWS - 1);
+    const x = 0;
     map[y][x] = 1;
     storage.push({ y, x });
 };
@@ -115,7 +115,7 @@ const generateMaze = function (map) {
     const COLS = map.at(0).length;
     firstStartPoint(storage, map, ROWS);
 
-    while (storage.length !== 0 && storage.at(-1).x !== COLS - 1) {
+    while (storage.at(-1).x !== COLS - 1) {
         let neightbours = getFilteredNeighbours(storage.at(-1), map);
 
         if (neightbours.length === 0) {
@@ -123,10 +123,13 @@ const generateMaze = function (map) {
         }
 
         const randomNeighbour = randomFromData(neightbours);
-        const indexNeigh = getNeighbors(randomNeighbour, map);
+        const indexNeighb = getNeighbors(randomNeighbour, map);
 
         map[randomNeighbour.y][randomNeighbour.x] = 1;
-        if (!isDeathEnd(indexNeigh, map) && !isNeighborVisited(indexNeigh, map))
+        if (
+            !isDeathEnd(indexNeighb, map) &&
+            !isNeighborVisited(indexNeighb, map)
+        )
             storage.push(randomNeighbour);
     }
     console.table(map);
