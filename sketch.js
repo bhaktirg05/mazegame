@@ -14,7 +14,7 @@ const createWorld = function () {
             TITLE: "Maze",
             FPS: 60,
         },
-        map: { ROWS: 20, COLS: 20 },
+        map: { ROWS: 5, COLS: 5 },
     };
 };
 
@@ -30,13 +30,9 @@ const setup = function () {
 
     return world;
 };
-const randomColor = function () {
-    const colors = [r.WHITE, r.BLACK];
-    const num = m.random(0, colors.length - 1);
-    return colors[num];
-};
+
 const chooseColor = function (maze, i, j) {
-    return maze[i][j] === 1 ? r.WHITE : randomColor();
+    return maze[i][j] === 1 ? r.WHITE : r.BLACK;
 };
 
 function getObject(row, col, map) {
@@ -48,7 +44,6 @@ function getObject(row, col, map) {
 }
 
 function drawMaze(map) {
-    // console.log("Called");
     for (let y = 0; y < map.ROWS; y++) {
         for (let x = 0; x < map.COLS; x++) {
             const obj = getObject(y, x, map);

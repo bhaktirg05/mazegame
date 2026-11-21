@@ -16,19 +16,19 @@ const generateMap = function (rows, cols) {
 };
 
 // const map = generateMap(ROWS, COLS);
-const getNeighbors = function (i, j, arr) {
+const getNeighbors = function ({ y, x }, arr) {
     const neighborPoints = [];
-    const rowStart = Math.max(0, i - 1);
-    const rowEnd = Math.min(i + 1, arr.length - 1);
-    const colStart = Math.max(0, j - 1);
-    const colEnd = Math.min(j + 1, arr.length - 1);
+    const rowStart = Math.max(0, y - 1);
+    const rowEnd = Math.min(y + 1, arr.length - 1);
+    const colStart = Math.max(0, x - 1);
+    const colEnd = Math.min(x + 1, arr.length - 1);
 
     for (let row = rowStart; row <= rowEnd; row++) {
-        if (row !== i) neighborPoints.push({ row, col: j });
+        if (row !== y) neighborPoints.push({ y: row, x });
     }
 
     for (let col = colStart; col <= colEnd; col++) {
-        if (col !== j) neighborPoints.push({ row: i, col });
+        if (col !== x) neighborPoints.push({ y, x: col });
     }
     return neighborPoints;
 };
@@ -36,27 +36,26 @@ const getNeighbors = function (i, j, arr) {
 const filterNeighbor = function (neighbors, arr) {
     const filteredNeighbors = [];
     for (let key = 0; key < neighbors.length; key++) {
-        const { row, col } = neighbors[key];
+        const { y, x } = neighbors[key];
 
-        if (arr[row][col] === 0) filteredNeighbors.push(neighbors[key]);
+        if (arr[y][x] === 0) filteredNeighbors.push(neighbors[key]);
     }
     return filteredNeighbors;
 };
 
 const isDeathEnd = function (neighbors, arr) {
     let count = 0;
-    for (const index of neighbors) {
-        if (arr[index.row][index.col] === 0) count++;
+    for (const { y, x } of neighbors) {
+        if (arr[y][x] === 0) count++;
     }
-    if (count > 0) return false;
-    return true;
+    return !(count > 0);
 };
 
-const isNeighborVisited = function (indexNeigh, arr) {
+const isNeighborVisited = function (neighbours, arr) {
     console.log("Yes Called");
     let count = 0;
-    for (const index of indexNeigh) {
-        if (arr[index.row][index.col] === 1) count++;
+    for (const { y, x } of neighbours) {
+        if (arr[y][x] === 1) count++;
     }
     return count >= 2;
 };
@@ -69,44 +68,40 @@ const dbg = function (value, name = "") {
 const firstStartPoint = function (storage, map, ROWS) {
     const start = [
         {
-            row: 0,
-            col: m.random(0, 3),
+            y: 0,
+            x: m.random(0, 3),
         },
         {
-            row: ROWS - 1,
-            col: m.random(0, 3),
+            y: ROWS - 1,
+            x: m.random(0, 3),
         },
         {
-            row: m.random(0, 3),
-            col: 0,
+            y: m.random(0, 3),
+            x: 0,
         },
     ];
     const index = m.random(0, 2);
-    const { row, col } = start[index];
+    const { y, x } = start[index];
 
-    map[row][col] = 1;
-    storage.push({ row, col });
+    map[y][x] = 1;
+    storage.push({ y, x });
 };
 
-const backtrack = function (filtered, storage, row, col, neigh, map) {
-    while (filtered.length === 0) {
-        console.log("Filter empty");
-        map[storage.at(-1).row][storage.at(-1).col] = 2;
+const getFilteredNeighbours = function (arr, map) {
+    const neighbors = getNeighbors(arr, map);
+    return filterNeighbor(neighbors, map);
+};
+
+const backtrack = function (neighbours, storage, map) {
+    while (neighbours.length === 0) {
+        const { y, x } = storage.at(-1);
+        map[y][x] = 1;
         storage.pop();
 
-        // ({row, col}) = storage.at(-1)
-        row = storage.at(-1).row;
-        col = storage.at(-1).col;
-
-        neigh = getNeighbors(row, col, map);
-        filtered = filterNeighbor(neigh, map);
+        neighbours = getFilteredNeighbours(storage.at(-1), map);
     }
-    return filtered;
-};
 
-const getFilteredNeightbours = function (row, col, map) {
-    const neighbors = getNeighbors(row, col, map);
-    return filterNeighbor(neighbors, map);
+    return neighbours;
 };
 
 const randomFromData = function (data) {
@@ -120,32 +115,19 @@ const generateMaze = function (map) {
     const COLS = map.at(0).length;
     firstStartPoint(storage, map, ROWS);
 
-    while (storage.length !== 0 && storage.at(-1).col !== COLS - 1) {
-        let { row, col } = storage.at(-1);
-
-        const neigh = getNeighbors(row, col, map);
-        let neightbours = filterNeighbor(neigh, map);
+    while (storage.length !== 0 && storage.at(-1).x !== COLS - 1) {
+        let neightbours = getFilteredNeighbours(storage.at(-1), map);
 
         if (neightbours.length === 0) {
-            neightbours = backtrack(neightbours, storage, row, col, neigh, map);
+            neightbours = backtrack(neightbours, storage, map);
         }
 
-        const neighindex = m.random(0, neightbours.length - 1);
         const randomNeighbour = randomFromData(neightbours);
+        const indexNeigh = getNeighbors(randomNeighbour, map);
 
-        const indexNeigh = getNeighbors(
-            randomNeighbour.row,
-            randomNeighbour.col,
-            map,
-        );
-
-        if (isDeathEnd(indexNeigh, map) || isNeighborVisited(indexNeigh, map)) {
-            map[randomNeighbour.row][randomNeighbour.col] = 1;
-            continue;
-        }
-
-        map[randomNeighbour.row][randomNeighbour.col] = 1;
-        storage.push(randomNeighbour);
+        map[randomNeighbour.y][randomNeighbour.x] = 1;
+        if (!isDeathEnd(indexNeigh, map) && !isNeighborVisited(indexNeigh, map))
+            storage.push(randomNeighbour);
     }
     console.table(map);
     console.log(storage);
