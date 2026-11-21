@@ -137,9 +137,31 @@ const generateMaze = function (map) {
     return map;
 };
 
+const chooseColor = function (maze, i, j) {
+    return maze[i][j] === 1 ? r.WHITE : r.BLACK;
+};
+
+function getObject(row, col, map) {
+    const x = col * map.size;
+    const y = row * map.size;
+    const color = chooseColor(map.maze, row, col);
+    const size = map.size;
+    return { x, y, size, size, color };
+}
+
+function drawMaze(map) {
+    for (let y = 0; y < map.ROWS; y++) {
+        for (let x = 0; x < map.COLS; x++) {
+            const obj = getObject(y, x, map);
+            r.DrawRectangle(obj.x, obj.y, obj.size, obj.size, obj.color);
+        }
+    }
+}
+
 // console.log(generatePath(map));
 
 module.exports = {
     generateMaze,
     generateMap,
+    drawMaze,
 };
