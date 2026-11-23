@@ -1,6 +1,6 @@
 const r = require("raylib");
 const p = require("./maze2");
-const { copy } = require("./utils");
+const { copy, printTable } = require("./utils");
 
 const running = function () {
     return !r.WindowShouldClose();
@@ -14,7 +14,7 @@ const createWorld = function () {
             TITLE: "Maze",
             FPS: 60,
         },
-        map: { ROWS: 30, COLS: 30, gap: 50 },
+        map: { ROWS: 7, COLS: 7, gap: 50 },
     };
 };
 
@@ -26,6 +26,12 @@ const setup = function () {
     world.map.size = Math.ceil((WIDTH - gap * 2) / ROWS);
     world.map.path = p.generatePath(copy(world.map.grid));
     world.map.maze = p.generateBlocks(world.map.path, copy(world.map.grid));
+    world.maze = p.generateMaze(
+        world.map.path,
+        world.map.maze,
+        copy(world.map.grid),
+    );
+    console.table(world.maze);
 
     r.SetTraceLogLevel(r.LOG_NONE);
     r.InitWindow(world.screen.WIDTH, world.screen.HEIGHT, world.screen.TITLE);

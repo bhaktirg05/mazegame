@@ -198,10 +198,24 @@ const isBlock = function (walls, i, j, length, path) {
     return false;
 };
 
+// const chooseColor = function (walls, i, j, length, path) {
+//     return isBlock(walls, i, j, length, path) ? r.BLACK : r.WHITE;
+// };
+
 const chooseColor = function (walls, i, j, length, path) {
     return isBlock(walls, i, j, length, path) ? r.BLACK : r.WHITE;
 };
 
+const generateMaze = function (path, blocks, grid) {
+    for (let y = 0; y < grid.length; y++) {
+        for (let x = 0; x < grid.at(0).length; x++) {
+            grid[y][x] = isBlock(blocks, y, x, grid.at(0).length - 1, path)
+                ? 1
+                : 0;
+        }
+    }
+    return grid;
+};
 // (isCellAtEdge(i, j, length) && !isInclude(path, i, j)) ||
 
 function getObject(row, col, map) {
@@ -245,4 +259,5 @@ module.exports = {
     generateMap,
     drawMaze,
     generateBlocks,
+    generateMaze,
 };
