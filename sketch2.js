@@ -14,7 +14,7 @@ const createWorld = function () {
             TITLE: "Maze",
             FPS: 60,
         },
-        map: { ROWS: 7, COLS: 7, gap: 50 },
+        map: { ROWS: 15, COLS: 15, gap: 50 },
     };
 };
 
@@ -25,10 +25,10 @@ const setup = function () {
     world.map.grid = p.generateMap(ROWS, COLS);
     world.map.size = Math.ceil((WIDTH - gap * 2) / ROWS);
     world.map.path = p.generatePath(copy(world.map.grid));
-    world.map.maze = p.generateBlocks(world.map.path, copy(world.map.grid));
-    world.maze = p.generateMaze(
+    world.map.walls = p.generateBlocks(world.map.path, copy(world.map.grid));
+    world.map.maze = p.generateMaze(
         world.map.path,
-        world.map.maze,
+        world.map.walls,
         copy(world.map.grid),
     );
     console.table(world.maze);
@@ -45,7 +45,7 @@ const update = function (world) {};
 const draw = function (world) {
     r.BeginDrawing();
     r.ClearBackground(r.WHITE);
-    p.drawMaze(world.map);
+    p.drawMaze(world.map, world.maze);
     r.EndDrawing();
 };
 

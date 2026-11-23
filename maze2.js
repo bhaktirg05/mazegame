@@ -202,8 +202,8 @@ const isBlock = function (walls, i, j, length, path) {
 //     return isBlock(walls, i, j, length, path) ? r.BLACK : r.WHITE;
 // };
 
-const chooseColor = function (walls, i, j, length, path) {
-    return isBlock(walls, i, j, length, path) ? r.BLACK : r.WHITE;
+const chooseColor = function (maze, i, j) {
+    return maze[i][j] === 0 ? r.WHITE : r.BLACK;
 };
 
 const generateMaze = function (path, blocks, grid) {
@@ -221,7 +221,7 @@ const generateMaze = function (path, blocks, grid) {
 function getObject(row, col, map) {
     const x = map.gap + col * map.size;
     const y = map.gap + row * map.size;
-    const color = chooseColor(map.maze, row, col, map.COLS - 1, map.path);
+    const color = chooseColor(map.maze, row, col);
     const size = map.size;
     return { rec: { x, y, width: size, height: size }, color };
 }
@@ -235,18 +235,20 @@ function drawMaze(map) {
         height: map.size * map.COLS + thickness * 2,
     };
     r.DrawRectangleLinesEx(rec, thickness, r.BLACK);
-    // console.log("Called", map.world.maze);
     for (let y = 0; y < map.ROWS; y++) {
         for (let x = 0; x < map.COLS; x++) {
             const obj = getObject(y, x, map);
+
             if (m.isEqual({ y, x }, map.path.at(0))) {
                 obj.rec.x -= thickness;
                 r.DrawRectangleRec(obj.rec, obj.color);
             }
+
             if (m.isEqual({ y, x }, map.path.at(-1))) {
                 obj.rec.x += thickness;
                 r.DrawRectangleRec(obj.rec, obj.color);
             }
+
             r.DrawRectangleRec(obj.rec, obj.color);
         }
     }
