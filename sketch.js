@@ -14,7 +14,7 @@ const createWorld = function () {
             TITLE: "Maze",
             FPS: 60,
         },
-        map: { ROWS: 5, COLS: 5 },
+        map: { ROWS: 30, COLS: 30 },
     };
 };
 

@@ -1,4 +1,5 @@
-const sketch = require("./sketch");
+// const sketch = require("./sketch");
+const sketch = require("./sketch2");
 
 const loop = function (world) {
     while (sketch.running()) {

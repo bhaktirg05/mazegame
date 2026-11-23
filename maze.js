@@ -1,6 +1,4 @@
-// const ROWS = 20;
-// const COLS = 20;
-
+const r = require("raylib");
 const m = require("./math");
 
 const generateMap = function (rows, cols) {
